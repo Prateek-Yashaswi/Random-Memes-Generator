@@ -1,25 +1,51 @@
-import logo from './logo.svg';
+import axios from "axios";
+import React,{useEffect, useState} from "react";
 import './App.css';
+import * as ReactBootStrap from 'react-bootstrap';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {
+
+    const [meme, setMeme] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [subReddit, setSubReddit] = useState(null);
+    const [title, setTitle] = useState(null);
+    const [postLink, setPostLink] = useState(null);
+
+    const generateMeme = async () =>{
+        try{
+            await axios.get("https://meme-api.herokuapp.com/gimme")
+            .then(res => {
+                setMeme(res.data.url);
+                setSubReddit(res.data.subreddit);
+                setTitle(res.data.title);
+                setPostLink(res.data.postLink);
+            });
+            setLoading(true);
+        }catch(e){
+            console.log(e);
+        }
+    };
+
+    useEffect(() => {
+        generateMeme()
+    },[])
+
+    return (
+        <div className="App">
+            <h1 id="heading"><span>Here Is Your Randomly Generated Meme</span></h1>
+            <div className="content">
+                {loading ? 
+                <div className="meme-details">
+                    <p>Title: {title}</p>
+                    <p>SubReddit: {subReddit}</p>
+                    <p><a href={postLink}>Go To Post</a></p>
+                    <img src={meme} alt= "Random Gif"/>
+                    
+                </div>  : <ReactBootStrap.Spinner animation="grow" className="spinner"/>}
+            </div>
+            
+        </div>
+    );
 }
 
 export default App;
